@@ -4,10 +4,6 @@
 
 # COMMAND ----------
 
-pip install dbldatagen
-
-# COMMAND ----------
-
 dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"], "Reset all data")
 
 # COMMAND ----------
@@ -73,7 +69,7 @@ def returnRandomJson():
   import random
   import json
   jsonObject={
-    "createdAt": str(datetime.datetime.now()),
+    "GSPData": str(datetime.datetime.now()),
     "intRandom": random.randint(1, 9999),
     "stringRandom": ''.join(random.choice('abcdefghijklmnopqrtzusv') for i in range(10)),
     "eventType": random.choices(["event1", "event2"])[0]
@@ -81,10 +77,6 @@ def returnRandomJson():
   return(json.dumps(jsonObject))
 
 returnRandomJsonUDF = udf(returnRandomJson, StringType())
-
-# COMMAND ----------
-
-''.join(random.choice('abcdefghijklmnopqrtzusv') for i in range(10))
 
 # COMMAND ----------
 
