@@ -4,3 +4,5 @@ databricks-sql-cli
 databricks-connect==10.4.*
 databricks-sql-connector
 nutter
+pydantic
+faker
