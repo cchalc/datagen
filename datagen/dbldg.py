@@ -141,27 +141,81 @@ dataspec = dg.DataGenerator(
 
 # COMMAND ----------
 
+# root
+#  |-- GPSData: array (nullable = true)
+#  |    |-- element: struct (containsNull = true)
+#  |    |    |-- SnappedLongitude: float (nullable = true)
+#  |    |    |-- GPSLongitude: float (nullable = true)
+#  |    |    |-- TimeStamp: double (nullable = true)
+#  |    |    |-- GPSHeading: integer (nullable = true)
+#  |    |    |-- GPSAltitude: integer (nullable = true)
+#  |    |    |-- GPSSpeed: float (nullable = true)
+#  |    |    |-- Deviation: float (nullable = true)
+#  |    |    |-- FromNodeID: long (nullable = true)
+#  |    |    |-- WayID: long (nullable = true)
+#  |    |    |-- SnappedLatitude: float (nullable = true)
+#  |    |    |-- ToNodeID: long (nullable = true)
+#  |    |    |-- HorizontalAccuracy: integer (nullable = true)
+#  |    |    |-- GPSLatitude: float (nullable = true)
+#  |    |    |-- VerticalAccuracy: integer (nullable = true)
+#  |-- DataAlgorithmVersion: string (nullable = true)
+#  |-- TripID: string (nullable = true)
+#  |-- StartTime: double (nullable = true)
+#  |-- CompanyID: string (nullable = true)
+#  |-- StartTimeZone: string (nullable = true)
+#  |-- DriverID: string (nullable = true)
+#  |-- EndTime: double (nullable = true)
+#  |-- EndTimeZone: string (nullable = true)
+
+# COMMAND ----------
+
+# dataspec = (dataspec
+# .withColumnSpec("GPSData")
+# .withColumnSpec("DataAlgorithmVersion")
+# .withColumnSpec("TripID")
+# .withColumnSpec("StartTime")
+# .withColumnSpec("CompanyID")
+# .withColumnSpec("StartTimeZone")
+# .withColumnSpec("DriverID")
+# .withColumnSpec("EndTime")
+# .withColumnSpec("EndTimeZone")
+# )
+
+# COMMAND ----------
+
+spark.sql("""Create table if not exists test_vehicle_data(
+                name string, 
+                serial_number string, 
+                license_plate string, 
+                email string
+                ) using Delta""")
+
+table_schema = spark.table("test_vehicle_data").schema
+
+print(table_schema)
+  
+dataspec = (dg.DataGenerator(spark, rows=10000000, partitions=8, 
+                  randomSeedMethod="hash_fieldname")
+            .withSchema(table_schema))
+
 dataspec = (dataspec
-.withColumnSpec("")
-)
+                .withColumnSpec("name", percentNulls=0.01, template=r'\\w \\w|\\w a. \\w')                                       
+                .withColumnSpec("serial_number", minValue=1000000, maxValue=10000000, 
+                                 prefix="dr", random=True) 
+                .withColumnSpec("email", template=r'\\w.\\w@\\w.com')       
+                .withColumnSpec("license_plate", template=r'\\n-\\n')
+           )
+df1 = dataspec.build()
+
+df1.write.format("delta").mode("overwrite").saveAsTable("test_vehicle_data")
 
 # COMMAND ----------
 
-dbutils.fs.ls(f"{cloud_storage_path}")
+df1.show()
 
 # COMMAND ----------
 
-df_with_schema = (
-  spark.read
-  .schema(schema)
-  .json("/Users/christopher.chalcraft@databricks.com/datagen/tmp.json")
-)
-# df_with_schema.printSchema()
-# df_with_schema.show()
-
-# COMMAND ----------
-
-print(cloud_storage_path)
+# sensor_df.write.json("s3://one-env-uc-external-location/shared_location/cchalc/datagen/tmp.json")
 
 # COMMAND ----------
 

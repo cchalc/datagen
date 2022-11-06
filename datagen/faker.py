@@ -3,6 +3,10 @@ pip install Faker
 
 # COMMAND ----------
 
+pip install pydantic
+
+# COMMAND ----------
+
 dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"], "Reset all data")
 
 # COMMAND ----------
