@@ -1,0 +1,68 @@
+schema_sensor = StructType([
+  StructField("GPSData", ArrayType(
+    StructType([
+      StructField("SnappedLongitude", FloatType(), True),
+      StructField("GPSLongitude", FloatType(), True),
+      StructField("TimeStamp", DoubleType(), True),
+      StructField("GPSHeading", IntegerType(), True),
+      StructField("GPSAltitude", IntegerType(), True),
+      StructField("GPSSpeed", FloatType(), True),
+      StructField("Deviation", FloatType(), True),
+      StructField("FromNodeID", LongType(), True),
+      StructField("WayID", LongType(), True),
+      StructField("SnappedLatitude", FloatType(), True),
+      StructField("ToNodeID", LongType(), True),
+      StructField("HorizontalAccuracy", IntegerType(), True),
+      StructField("GPSLatitude", FloatType(), True),
+      StructField("VerticalAccuracy", IntegerType(), True),
+      ])
+  ), True),
+  StructField("DataAlgorithmVersion", StringType(), True),
+  StructField("TripID", StringType(), True),
+  StructField("StartTime", DoubleType(), True),
+  StructField("CompanyID", StringType(), True),
+  StructField("StartTimeZone", StringType(), True),
+  StructField("DriverID", StringType(), True),
+  StructField("EndTime", DoubleType(), True),
+  StructField("EndTimeZone", StringType(), True),
+])
+
+
+root
+ |-- GPSData: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- SnappedLongitude: float (nullable = true)
+ |    |    |-- GPSLongitude: float (nullable = true)
+ |    |    |-- TimeStamp: double (nullable = true)
+ |    |    |-- GPSHeading: integer (nullable = true)
+ |    |    |-- GPSAltitude: integer (nullable = true)
+ |    |    |-- GPSSpeed: float (nullable = true)
+ |    |    |-- Deviation: float (nullable = true)
+ |    |    |-- FromNodeID: long (nullable = true)
+ |    |    |-- WayID: long (nullable = true)
+ |    |    |-- SnappedLatitude: float (nullable = true)
+ |    |    |-- ToNodeID: long (nullable = true)
+ |    |    |-- HorizontalAccuracy: integer (nullable = true)
+ |    |    |-- GPSLatitude: float (nullable = true)
+ |    |    |-- VerticalAccuracy: integer (nullable = true)
+ |-- DataAlgorithmVersion: string (nullable = true)
+ |-- TripID: string (nullable = true)
+ |-- StartTime: double (nullable = true)
+ |-- CompanyID: string (nullable = true)
+ |-- StartTimeZone: string (nullable = true)
+ |-- DriverID: string (nullable = true)
+ |-- EndTime: double (nullable = true)
+ |-- EndTimeZone: string (nullable = true)
+
+
+ df.select(
+  "GSPData",
+  "DataAlgorithmVersion",
+  "TripID",
+  "StartTime",
+  "CompanyID",
+  "StartTimeZone",
+  "DriverID",
+  "EndTime",
+  "EndTimeZone",
+)
