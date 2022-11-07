@@ -119,12 +119,23 @@ table_path = "/Users/christopher.chalcraft@databricks.com/datagen/bronze.delta/"
 df = (spark.read
 .format("delta")
 .load(table_path)
-.withColumn("payload",from_json("payload",schema))
+# .withColumn("payload",from_json("payload",schema))
 # .select(explode(df.payload))
 # .withColumn("payload", explode(col("payload")))
-.select("payload")
+# .select("payload")
+# .select(get_json_object(df.payload, "$.TripID"))
 )
 display(df)
+
+# COMMAND ----------
+
+new_df = df.select(get_json_object(df.payload, "$.GPSData").alias("GPSData"))
+display(new_df)
+# .withColumn("payload", explode(col("payload")))
+
+# COMMAND ----------
+
+df.printSchema()
 
 # COMMAND ----------
 
