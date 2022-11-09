@@ -55,6 +55,10 @@ display(df)
 
 # COMMAND ----------
 
+
+
+# COMMAND ----------
+
 tmp_df= (spark.read
 .format("delta")
 .load(table_path)
@@ -63,7 +67,11 @@ tmp_df= (spark.read
 
 json_string = tmp_df[0][1]
 schema = schema_of_json(json_string)
-print(schema)
+
+# COMMAND ----------
+
+schema_definition = from_json(json_string, schema)
+print(schema_definition)
 
 # COMMAND ----------
 
@@ -71,9 +79,11 @@ tmp_df[0][1]
 
 # COMMAND ----------
 
--- %sql select get_json_object(tmp_df[0][1])
+# -- %sql select get_json_object(tmp_df[0][1])
 
 # COMMAND ----------
+
+# where did I get this?
 
 schema = StructType(
     [
@@ -119,41 +129,21 @@ table_path = "/Users/christopher.chalcraft@databricks.com/datagen/bronze.delta/"
 df = (spark.read
 .format("delta")
 .load(table_path)
-# .withColumn("payload",from_json("payload",schema))
+.withColumn("payload",from_json(col("payload"),schema))
 # .select(explode(df.payload))
 # .withColumn("payload", explode(col("payload")))
 # .select("payload")
 # .select(get_json_object(df.payload, "$.TripID"))
+# .select(col("payload").getItem("GPSData"))
+# .select("payload*.,*")
+# .select("payload")
 )
 display(df)
 
 # COMMAND ----------
 
-new_df = df.select(get_json_object(df.payload, "$.GPSData").alias("GPSData"))
-display(new_df)
-# .withColumn("payload", explode(col("payload")))
+display(df.select("payload.*","*"))
 
-# COMMAND ----------
-
-df.printSchema()
-
-# COMMAND ----------
-
-df.printSchema()
-
-# COMMAND ----------
-
-# complex data example
-table_path = "/Users/christopher.chalcraft@databricks.com/datagen/bronze.delta/"
-df = (spark.read
-.format("delta")
-.load(table_path)
-# .withColumn("payload",from_json("payload",schema))
-# .select(explode(df.payload))
-# .withColumn("payload", explode(col("payload")))
-.select(col("payload").getItem("GPSData"))
-)
-display(df)
 
 # COMMAND ----------
 
