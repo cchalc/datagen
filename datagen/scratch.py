@@ -15,6 +15,8 @@ from pyspark.sql.functions import from_json, col, schema_of_json, explode, get_j
 
 # COMMAND ----------
 
+# This is what we want
+
 schema_sensor = StructType([
   StructField("GPSData", ArrayType(
     StructType([
@@ -67,11 +69,7 @@ tmp_df= (spark.read
 
 json_string = tmp_df[0][1]
 schema = schema_of_json(json_string)
-
-# COMMAND ----------
-
-schema_definition = from_json(json_string, schema)
-print(schema_definition)
+print(schema)
 
 # COMMAND ----------
 
@@ -79,70 +77,32 @@ tmp_df[0][1]
 
 # COMMAND ----------
 
-# -- %sql select get_json_object(tmp_df[0][1])
-
-# COMMAND ----------
-
-# where did I get this?
-
-schema = StructType(
-    [
-        StructField("CompanyID", StringType(), True),
-        StructField("DataAlgorithmVersion", StringType(), True),
-        StructField("DriverID", StringType(), True),
-        StructField("EndTime", StringType(), True),
-        StructField("EndTimeZone", StringType(), True),
-        StructField(
-            "GSPData",
-            ArrayType(
-                StructType(
-                    [
-                        StructField("Deviation", DoubleType(), True),
-                        StructField("FromNodeID", DoubleType(), True),
-                        StructField("GPSAltitude", LongType(), True),
-                        StructField("GPSHeading", LongType(), True),
-                        StructField("GPSLatitude", DoubleType(), True),
-                        StructField("GPSLongitude", DoubleType(), True),
-                        StructField("GPSSpeed", DoubleType(), True),
-                        StructField("HorizontalAccuracy", LongType(), True),
-                        StructField("SnappedLatitude", DoubleType(), True),
-                        StructField("SnappedLongitude", DoubleType(), True),
-                        StructField("TimeStamp", StringType(), True),
-                        StructField("ToNodeID", DoubleType(), True),
-                        StructField("VerticalAccuracy", LongType(), True),
-                        StructField("WayID", DoubleType(), True),
-                    ]
-                ),
-                True,
-            ),
-            True,
-        ),
-        StructField("StartTime", StringType(), True),
-        StructField("StartTimeZone", StringType(), True),
-        StructField("TripID", LongType(), True),
-    ]
-)
-
-# COMMAND ----------
-
 table_path = "/Users/christopher.chalcraft@databricks.com/datagen/bronze.delta/"
 df = (spark.read
 .format("delta")
 .load(table_path)
-.withColumn("payload",from_json(col("payload"),schema))
-# .select(explode(df.payload))
-# .withColumn("payload", explode(col("payload")))
-# .select("payload")
-# .select(get_json_object(df.payload, "$.TripID"))
-# .select(col("payload").getItem("GPSData"))
-# .select("payload*.,*")
-# .select("payload")
+.withColumn("payload",from_json("payload",schema))
+.select("payload.*","*")
+.drop("payload", "event")
 )
 display(df)
 
 # COMMAND ----------
 
-display(df.select("payload.*","*"))
+# Fix types - https://www.geeksforgeeks.org/how-to-change-column-type-in-pyspark-dataframe/
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, FloatType, DoubleType, LongType, ArrayType
+
+coltype_map = {
+  "GPSData": DecimalType(),
+  "DataAlgorithmVersion": StringType(),
+  "TripID": StringType(),
+  "CompanyID": StringType(),
+  "StartTimeZone": StringType(),
+  "DriverID": StringType()
+}
+
+# COMMAND ----------
+
 
 
 # COMMAND ----------
